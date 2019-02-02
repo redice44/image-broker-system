@@ -1,0 +1,36 @@
+version: "3.3"
+
+services:
+  image-source:
+    build:
+      context: ./image-source
+      dockerfile: ./docker/Dockerfile
+    environment:
+      POLL_INTERVAL: 5000
+      IMAGE_SOURCE: "" 
+      IMAGE_DIR: "./tmp"
+      RABBITMQ_DEFAULT_USER: "rabbit"
+      RABBITMQ_DEFAULT_PASS: "rabbit"
+      RABBITMQ_URL: "rabbit:5672"
+    volumes:
+      - ./image-source:/usr/src/app
+      - image-source_node_modules:/usr/src/app/node_modules
+    depends_on:
+      - rabbit
+
+  rabbit:
+    image: "rabbitmq:3.7.8-management-alpine"
+    hostname: "rabbit"
+    environment:
+      RABBITMQ_DEFAULT_USER: "rabbit"
+      RABBITMQ_DEFAULT_PASS: "rabbit"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  image-source_node_modules:
+  rabbitmq-data:
