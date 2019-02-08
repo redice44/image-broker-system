@@ -7,7 +7,6 @@ services:
       dockerfile: ./docker/Dockerfile
     environment:
       POLL_INTERVAL: 5000
-      IMAGE_DIR: "./tmp"
       IMAGE_SOURCE: ""
       RABBITMQ_USER: ""
       RABBITMQ_PASS: ""
@@ -20,5 +19,23 @@ services:
       - ./image-source:/usr/src/app
       - image-source_node_modules:/usr/src/app/node_modules
 
+  image-consumer:
+    build:
+      context: ./image-consumer
+      dockerfile: ./docker/Dockerfile
+    environment:
+      IMAGE_DIR: "./tmp"
+      RABBITMQ_USER: ""
+      RABBITMQ_PASS: ""
+      RABBITMQ_URL: ""
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_ENDPOINT: ""
+      S3_BUCKET: ""
+    volumes:
+      - ./image-consumer:/usr/src/app
+      - image-consumer_node_modules:/usr/src/app/node_modules
+
 volumes:
   image-source_node_modules:
+  image-consumer_node_modules:

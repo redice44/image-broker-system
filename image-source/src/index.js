@@ -1,8 +1,6 @@
 const AWS = require('aws-sdk');
-const fs = require('fs');
 const rp = require('request-promise');
 const moment = require('moment');
-const mkdirp = require('mkdirp');
 const TopicConnector = require('@redice44/rabbitmq-topic-routing-schema');
 const topic = require('./topics/images');
 const s3 = new AWS.S3({
@@ -29,10 +27,8 @@ const main = async () => {
   const { name, schema } = topic;
   const connection = await setupConnection(connectionString, { name, schema });
 
-  mkdirp(filePath);
-
   try {
-    const headBucket = await s3.headBucket({
+    await s3.headBucket({
       Bucket: bucket
     }).promise();
   } catch (error) {
@@ -46,25 +42,11 @@ const main = async () => {
   }
 
   setInterval(getImage, ms, connection, url, filePath);
-  //const fileName = await getImage(connection, url, filePath);
-  //await retrieveImage(fileName, filePath);
-  //process.exit(0);
-};
-
-const retrieveImage = async (key, filePath) => {
-  const fileLocation = `${filePath}/minio-${key}`;
-  const file = await s3.getObject({
-    Bucket: bucket,
-    Key: key,
-  }).promise();
-  const buff = Buffer.from(file.Body);
-  fs.writeFileSync(fileLocation, buff, { encoding: 'binary' });
 };
 
 const getImage = async (brokerConnection, url, filePath) => {
   const fileName = `${moment().format('x')}.${IMG_EXT}`;
-  //const fileLocation = `${filePath}/${fileName}`;
-  console.log(`=== ${fileName} ===`);
+  console.log(`\n=== ${fileName} ===`);
   console.log('Capturing image');
   const img = await rp.get({ url, encoding: null });
   const exchangeTopic = {
@@ -76,7 +58,6 @@ const getImage = async (brokerConnection, url, filePath) => {
     bucket,
     key: fileName
   };
-  //fs.writeFileSync(fileLocation, img, { encoding: 'base64' });
   try {
     console.log('Storing image');
     const r = await s3.putObject({
