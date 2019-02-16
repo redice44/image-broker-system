@@ -32,7 +32,7 @@ const main = async () => {
 const retrieveImage = async (message) => {
   console.log('\n=== New Message ===');
   const { bucket, key } = JSON.parse(message.content.toString());
-  const fileLocation = `${filePath}/${key}`;
+  const fileLocation = `${filePath}/${key.split('/').slice(-1)[0]}`;
   console.log('Retrieving Image');
   console.log(`  B: ${bucket}`);
   console.log(`  K: ${key}`);
